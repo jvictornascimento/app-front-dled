@@ -15,11 +15,28 @@ type RequestOptions = {
 };
 
 async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
+  const isFormData = typeof FormData !== "undefined" && options.body instanceof FormData;
+  const headers =
+    options.body === undefined
+      ? undefined
+      : isFormData
+        ? undefined
+        : { "Content-Type": "application/json" };
+
+  let body: BodyInit | undefined;
+  if (options.body === undefined) {
+    body = undefined;
+  } else if (isFormData) {
+    body = options.body as FormData;
+  } else {
+    body = JSON.stringify(options.body as Record<string, unknown>);
+  }
+
   const response = await fetch(`/api/backend${path}`, {
     method: options.method ?? "GET",
     credentials: "include",
-    headers: options.body !== undefined ? { "Content-Type": "application/json" } : undefined,
-    body: options.body !== undefined ? JSON.stringify(options.body) : undefined,
+    headers,
+    body,
     cache: "no-store",
   });
 
@@ -62,6 +79,21 @@ export const api = {
   },
   updateProduct(id: string, payload: unknown) {
     return request<ProductDetailDto>(`/products/${id}`, { method: "PUT", body: payload });
+  },
+  uploadProductMainImage(id: string, file: File) {
+    const formData = new FormData();
+    formData.append("file", file);
+    return request<ProductDetailDto>(`/products/${id}/images/main`, { method: "POST", body: formData });
+  },
+  uploadProductIconImage(id: string, file: File) {
+    const formData = new FormData();
+    formData.append("file", file);
+    return request<ProductDetailDto>(`/products/${id}/images/icon`, { method: "POST", body: formData });
+  },
+  uploadProductGalleryImage(id: string, file: File) {
+    const formData = new FormData();
+    formData.append("file", file);
+    return request<ProductDetailDto>(`/products/${id}/gallery`, { method: "POST", body: formData });
   },
   deleteProduct(id: string) {
     return request<void>(`/products/${id}`, { method: "DELETE" });

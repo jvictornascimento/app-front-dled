@@ -26,7 +26,7 @@ async function forward(request: NextRequest, segments: string[]) {
   }
 
   const method = request.method.toUpperCase();
-  const body = method === "GET" || method === "HEAD" ? undefined : await request.text();
+  const body = method === "GET" || method === "HEAD" ? undefined : await request.arrayBuffer();
 
   const response = await fetch(target, {
     method,
