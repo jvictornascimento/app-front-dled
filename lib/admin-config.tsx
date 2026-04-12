@@ -30,6 +30,17 @@ export interface SelectOption {
   note?: string;
 }
 
+export function flattenCategoryOptions(tree: CategoryTreeDTO[], prefix = ""): SelectOption[] {
+  return tree.flatMap((item) => {
+    const currentLabel = prefix ? `${prefix} / ${item.name}` : item.name;
+
+    return [
+      { label: currentLabel, value: String(item.id) },
+      ...flattenCategoryOptions(item.children, currentLabel),
+    ];
+  });
+}
+
 export interface FormField {
   name: string;
   label: string;
@@ -108,17 +119,6 @@ function parseOptionalNumber(values: FormValues, key: string) {
   return raw ? Number(raw) : null;
 }
 
-function flattenCategoryTree(tree: CategoryTreeDTO[], prefix = ""): SelectOption[] {
-  return tree.flatMap((item) => {
-    const currentLabel = prefix ? `${prefix} / ${item.name}` : item.name;
-
-    return [
-      { label: currentLabel, value: String(item.id) },
-      ...flattenCategoryTree(item.children, currentLabel),
-    ];
-  });
-}
-
 function flattenCategoryList(tree: CategoryTreeDTO[]) {
   return tree.flatMap((item) => [
     {
@@ -184,7 +184,8 @@ function productFields(options: Record<string, unknown>): FormField[] {
       required: true,
       span: 2,
       options: categories,
-      helpText: "O backend exige pelo menos uma categoria por produto.",
+      placeholder: "Digite pelo menos 3 letras para buscar categorias",
+      helpText: "Digite 3 letras para carregar sugestoes e adicione as categorias como tags removiveis.",
     },
     { name: "descricao", label: "Descricao", type: "textarea", span: 2 },
     { name: "restricoesDeUso", label: "Restricoes de uso", type: "textarea" },
@@ -295,9 +296,9 @@ export const entityDefinitions: Record<EntityKey, EntityDefinition> = {
     update: (id, payload) => api.updateProduct(id, payload),
     remove: (id) => api.deleteProduct(id),
     loadOptions: async () => {
-      const tree = await api.listCategoriesTree();
-      return {
-        categoryOptions: flattenCategoryTree(tree),
+        const tree = await api.listCategoriesTree();
+        return {
+        categoryOptions: flattenCategoryOptions(tree),
       };
     },
     getDefaultValues: () => mapProductFormValues(),
@@ -367,7 +368,7 @@ export const entityDefinitions: Record<EntityKey, EntityDefinition> = {
     loadOptions: async () => {
       const tree = await api.listCategoriesTree();
       return {
-        categoryOptions: flattenCategoryTree(tree),
+        categoryOptions: flattenCategoryOptions(tree),
       };
     },
     getDefaultValues: () => ({

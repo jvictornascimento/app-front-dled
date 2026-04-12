@@ -4,13 +4,15 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import {
+  flattenCategoryOptions,
   getEntityDefinition,
   getUserFieldsForMode,
   type EntityKey,
   type FormField,
   type FormValues,
+  type SelectOption,
 } from "@/lib/admin-config";
-import { ApiError } from "@/lib/api";
+import { api, ApiError } from "@/lib/api";
 import { AppShell } from "@/components/admin/app-shell";
 
 type Mode = "create" | "edit";
@@ -28,6 +30,125 @@ function renderCheckboxCard(
         {field.helpText ? <span className="field__hint" style={{ display: "block", marginTop: "0.2rem" }}>{field.helpText}</span> : null}
       </span>
     </label>
+  );
+}
+
+function AsyncCategorySelector({
+  field,
+  selected,
+  baseOptions,
+  onChange,
+}: {
+  field: FormField;
+  selected: string[];
+  baseOptions: SelectOption[];
+  onChange: (nextValue: string[]) => void;
+}) {
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState<SelectOption[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  const selectedMap = useMemo(() => {
+    const map = new Map<string, SelectOption>();
+    [...baseOptions, ...results].forEach((option) => {
+      map.set(option.value, option);
+    });
+    return map;
+  }, [baseOptions, results]);
+
+  useEffect(() => {
+    if (query.trim().length < 3) {
+      setResults([]);
+      setLoading(false);
+      return;
+    }
+
+    const timeoutId = window.setTimeout(async () => {
+      setLoading(true);
+
+      try {
+        const tree = await api.listCategoriesTree();
+        const options = flattenCategoryOptions(tree);
+        const normalizedQuery = query.trim().toLowerCase();
+        const filtered = options
+          .filter((option) => option.label.toLowerCase().includes(normalizedQuery))
+          .filter((option) => !selected.includes(option.value))
+          .slice(0, 10);
+
+        setResults(filtered);
+      } catch {
+        setResults([]);
+      } finally {
+        setLoading(false);
+      }
+    }, 280);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [query, selected]);
+
+  function handleSelect(option: SelectOption) {
+    if (selected.includes(option.value)) {
+      return;
+    }
+
+    onChange([...selected, option.value]);
+    setQuery("");
+    setResults([]);
+  }
+
+  function handleRemove(value: string) {
+    onChange(selected.filter((item) => item !== value));
+  }
+
+  return (
+    <div className="field field--span-2">
+      <label htmlFor={field.name}>{field.label}</label>
+      <div className="tag-selector">
+        <div className="tag-selector__selected">
+          {selected.length === 0 ? (
+            <span className="tag-selector__placeholder">Nenhuma categoria adicionada.</span>
+          ) : (
+            selected.map((value) => {
+              const option = selectedMap.get(value);
+              return (
+                <span key={value} className="tag-chip">
+                  <span>{option?.label ?? `Categoria #${value}`}</span>
+                  <button type="button" aria-label={`Remover categoria ${option?.label ?? value}`} onClick={() => handleRemove(value)}>
+                    X
+                  </button>
+                </span>
+              );
+            })
+          )}
+        </div>
+
+        <input
+          id={field.name}
+          placeholder={field.placeholder}
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+          autoComplete="off"
+        />
+
+        {query.trim().length > 0 && query.trim().length < 3 ? (
+          <span className="field__hint">Continue digitando para buscar categorias a partir da terceira letra.</span>
+        ) : null}
+
+        {loading ? <span className="field__hint">Buscando categorias...</span> : null}
+
+        {results.length > 0 ? (
+          <div className="tag-selector__results">
+            {results.map((option) => (
+              <button key={option.value} type="button" className="tag-selector__result" onClick={() => handleSelect(option)}>
+                <strong>{option.label}</strong>
+                <span>{option.note ?? "Selecionar categoria"}</span>
+              </button>
+            ))}
+          </div>
+        ) : null}
+      </div>
+      {field.helpText ? <span className="field__hint">{field.helpText}</span> : null}
+    </div>
   );
 }
 
@@ -188,6 +309,19 @@ export function EntityFormScreen({
 
               if (field.type === "multiselect") {
                 const selected = Array.isArray(fieldValue) ? fieldValue.map(String) : [];
+
+                if (entityKey === "products" && field.name === "categoryIds") {
+                  return (
+                    <AsyncCategorySelector
+                      key={field.name}
+                      field={field}
+                      selected={selected}
+                      baseOptions={(field.options ?? []) as SelectOption[]}
+                      onChange={(nextValue) => setFieldValue(field.name, nextValue)}
+                    />
+                  );
+                }
+
                 return (
                   <div className={spanClass} key={field.name}>
                     <label>{field.label}</label>
