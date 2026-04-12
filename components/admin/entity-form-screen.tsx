@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import Link from "next/link";
@@ -30,6 +31,111 @@ function renderCheckboxCard(
         {field.helpText ? <span className="field__hint" style={{ display: "block", marginTop: "0.2rem" }}>{field.helpText}</span> : null}
       </span>
     </label>
+  );
+}
+
+interface ProductAssetState {
+  mainFile: File | null;
+  iconFile: File | null;
+  galleryFiles: File[];
+  existingMainUrl: string | null;
+  existingIconUrl: string | null;
+  existingGalleryUrls: string[];
+}
+
+function ProductImageUploads({
+  assets,
+  onChange,
+}: {
+  assets: ProductAssetState;
+  onChange: (nextAssets: ProductAssetState) => void;
+}) {
+  const mainPreview = assets.mainFile ? URL.createObjectURL(assets.mainFile) : assets.existingMainUrl;
+  const iconPreview = assets.iconFile ? URL.createObjectURL(assets.iconFile) : assets.existingIconUrl;
+  const galleryPreviewUrls = assets.galleryFiles.map((file) => URL.createObjectURL(file));
+
+  function replaceMain(fileList: FileList | null) {
+    onChange({
+      ...assets,
+      mainFile: fileList?.[0] ?? null,
+    });
+  }
+
+  function replaceIcon(fileList: FileList | null) {
+    onChange({
+      ...assets,
+      iconFile: fileList?.[0] ?? null,
+    });
+  }
+
+  function addGallery(fileList: FileList | null) {
+    const nextFiles = fileList ? Array.from(fileList) : [];
+    onChange({
+      ...assets,
+      galleryFiles: [...assets.galleryFiles, ...nextFiles].slice(0, 5),
+    });
+  }
+
+  function removeGallery(fileIndex: number) {
+    onChange({
+      ...assets,
+      galleryFiles: assets.galleryFiles.filter((_, currentIndex) => currentIndex !== fileIndex),
+    });
+  }
+
+  return (
+    <div className="field field--span-2">
+      <label>Arquivos do produto</label>
+      <div className="asset-grid">
+        <div className="asset-card">
+          <div className="asset-card__header">
+            <strong>Foto principal</strong>
+            <span className="field__hint">Enviada ao backend apenas no salvar.</span>
+          </div>
+          <input type="file" accept="image/*" onChange={(event) => replaceMain(event.target.files)} />
+          {mainPreview ? <img className="asset-card__preview" src={mainPreview} alt="Preview da foto principal" /> : null}
+        </div>
+
+        <div className="asset-card">
+          <div className="asset-card__header">
+            <strong>Icone do produto</strong>
+            <span className="field__hint">Usado em listagens e cards.</span>
+          </div>
+          <input type="file" accept="image/*" onChange={(event) => replaceIcon(event.target.files)} />
+          {iconPreview ? <img className="asset-card__preview" src={iconPreview} alt="Preview do icone do produto" /> : null}
+        </div>
+      </div>
+
+      <div className="asset-card" style={{ marginTop: "0.8rem" }}>
+        <div className="asset-card__header">
+          <strong>Galeria</strong>
+          <span className="field__hint">Adicione ate 5 imagens; o envio ocorre em lote quando salvar o produto.</span>
+        </div>
+        <input type="file" accept="image/*" multiple onChange={(event) => addGallery(event.target.files)} />
+        {assets.existingGalleryUrls.length > 0 ? (
+          <div className="gallery-preview-grid" style={{ marginBottom: "0.8rem" }}>
+            {assets.existingGalleryUrls.map((url, index) => (
+              <div className="gallery-preview-item" key={`saved-${url}-${index}`}>
+                <img src={url} alt={`Imagem atual da galeria ${index + 1}`} />
+                <span className="badge badge--muted">Ja salva</span>
+              </div>
+            ))}
+          </div>
+        ) : null}
+        {galleryPreviewUrls.length > 0 ? (
+          <div className="gallery-preview-grid">
+            {galleryPreviewUrls.map((url, index) => (
+              <div className="gallery-preview-item" key={`${url}-${index}`}>
+                <img src={url} alt={`Preview da galeria ${index + 1}`} />
+                <button type="button" onClick={() => removeGallery(index)}>
+                  X
+                </button>
+              </div>
+            ))}
+          </div>
+        ) : null}
+      </div>
+    </div>
   );
 }
 
@@ -169,6 +275,14 @@ export function EntityFormScreen({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [productAssets, setProductAssets] = useState<ProductAssetState>({
+    mainFile: null,
+    iconFile: null,
+    galleryFiles: [],
+    existingMainUrl: null,
+    existingIconUrl: null,
+    existingGalleryUrls: [],
+  });
 
   useEffect(() => {
     async function load() {
@@ -177,10 +291,34 @@ export function EntityFormScreen({
 
       try {
         const loadedOptions = entity.loadOptions ? await entity.loadOptions() : {};
-        const nextValues =
-          mode === "edit" && id
-            ? entity.mapToValues(await entity.getOne(id), loadedOptions)
-            : entity.getDefaultValues(loadedOptions);
+        const loadedItem = mode === "edit" && id ? await entity.getOne(id) : null;
+        const nextValues = loadedItem
+          ? entity.mapToValues(loadedItem, loadedOptions)
+          : entity.getDefaultValues(loadedOptions);
+
+        if (entityKey === "products" && loadedItem) {
+          const product = loadedItem;
+          setProductAssets({
+            mainFile: null,
+            iconFile: null,
+            galleryFiles: [],
+            existingMainUrl: (product.imgUrl as string | null) ?? null,
+            existingIconUrl: (product.iconUrl as string | null) ?? null,
+            existingGalleryUrls:
+              ((product.galleryImages as { imageUrl?: string }[] | undefined) ?? [])
+                .map((item) => item.imageUrl)
+                .filter((value): value is string => Boolean(value)),
+          });
+        } else if (entityKey === "products") {
+          setProductAssets({
+            mainFile: null,
+            iconFile: null,
+            galleryFiles: [],
+            existingMainUrl: null,
+            existingIconUrl: null,
+            existingGalleryUrls: [],
+          });
+        }
 
         setOptions(loadedOptions);
         setValues(nextValues);
@@ -192,7 +330,7 @@ export function EntityFormScreen({
     }
 
     void load();
-  }, [entity, id, mode]);
+  }, [entity, entityKey, id, mode]);
 
   const fields = useMemo(() => {
     if (entityKey === "users") {
@@ -209,6 +347,24 @@ export function EntityFormScreen({
     }));
   }
 
+  async function uploadPendingProductAssets(productId: string) {
+    if (entityKey !== "products") {
+      return;
+    }
+
+    if (productAssets.mainFile) {
+      await api.uploadProductMainImage(productId, productAssets.mainFile);
+    }
+
+    if (productAssets.iconFile) {
+      await api.uploadProductIconImage(productId, productAssets.iconFile);
+    }
+
+    for (const file of productAssets.galleryFiles) {
+      await api.uploadProductGalleryImage(productId, file);
+    }
+  }
+
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setSaving(true);
@@ -219,9 +375,13 @@ export function EntityFormScreen({
       const payload = entity.buildPayload(values);
       if (mode === "edit" && id) {
         await entity.update(id, payload);
+        await uploadPendingProductAssets(id);
         setSuccess(`${entity.singularLabel} atualizado com sucesso.`);
       } else {
-        await entity.create(payload);
+        const created = (await entity.create(payload)) as { id?: number | string };
+        if (entityKey === "products" && created?.id !== undefined) {
+          await uploadPendingProductAssets(String(created.id));
+        }
         setSuccess(`${entity.singularLabel} criado com sucesso.`);
         router.push(entity.route);
         return;
@@ -378,6 +538,10 @@ export function EntityFormScreen({
                 </div>
               );
             })}
+
+            {entityKey === "products" ? (
+              <ProductImageUploads assets={productAssets} onChange={setProductAssets} />
+            ) : null}
           </form>
         )}
       </section>

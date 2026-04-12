@@ -43,7 +43,7 @@ export interface ProductCardDto {
 
 export interface ProductGalleryImageDto {
   id: number;
-  url: string;
+  imageUrl: string;
 }
 
 export interface ProductDetailDto {
