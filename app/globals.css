@@ -1,27 +1,27 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f2f4f8;
-  --foreground: #0f172a;
-  --muted: #dbe4ef;
-  --muted-foreground: #5b6678;
-  --panel: rgba(255, 255, 255, 0.86);
+  --background: #f5f1f1;
+  --foreground: #161616;
+  --muted: #e9d8d8;
+  --muted-foreground: #655a5a;
+  --panel: rgba(255, 255, 255, 0.88);
   --panel-strong: #ffffff;
-  --line: rgba(19, 41, 75, 0.12);
-  --line-strong: rgba(19, 41, 75, 0.22);
-  --accent: #0e7490;
-  --accent-strong: #155e75;
-  --accent-soft: rgba(14, 116, 144, 0.14);
+  --line: rgba(22, 22, 22, 0.12);
+  --line-strong: rgba(22, 22, 22, 0.24);
+  --accent: #c61616;
+  --accent-strong: #8f1010;
+  --accent-soft: rgba(198, 22, 22, 0.14);
   --danger: #b91c1c;
-  --success: #0f766e;
-  --warning: #b45309;
-  --shadow: 0 26px 60px rgba(15, 23, 42, 0.12);
+  --success: #7d1111;
+  --warning: #9a3412;
+  --shadow: 0 26px 60px rgba(22, 22, 22, 0.12);
   --radius: 24px;
   --content-width: 1600px;
   --nav-width: 296px;
   --density-gap: 1rem;
   --density-pad: 1rem;
-  --grid-highlight: rgba(14, 116, 144, 0.08);
+  --grid-highlight: rgba(198, 22, 22, 0.07);
 }
 
 @theme inline {
@@ -38,8 +38,8 @@
 html {
   height: 100%;
   background:
-    radial-gradient(circle at top left, rgba(14, 116, 144, 0.14), transparent 30%),
-    linear-gradient(180deg, #f8fbfd 0%, #eef3f8 100%);
+    radial-gradient(circle at top left, rgba(198, 22, 22, 0.12), transparent 30%),
+    linear-gradient(180deg, #f8f3f3 0%, #efe6e6 100%);
 }
 
 body {
@@ -49,7 +49,7 @@ body {
   font-family: var(--font-body), sans-serif;
   background:
     linear-gradient(135deg, rgba(255, 255, 255, 0.66), rgba(255, 255, 255, 0.12)),
-    linear-gradient(180deg, #f6f8fb 0%, #eef2f7 100%);
+    linear-gradient(180deg, #f8f2f2 0%, #efe4e4 100%);
 }
 
 body::before {
@@ -140,8 +140,8 @@ button {
   height: 100vh;
   padding: 1.5rem;
   background:
-    linear-gradient(180deg, rgba(10, 21, 38, 0.96), rgba(12, 31, 58, 0.96)),
-    linear-gradient(180deg, rgba(14, 116, 144, 0.14), transparent);
+    linear-gradient(180deg, rgba(22, 22, 22, 0.98), rgba(28, 28, 28, 0.98)),
+    linear-gradient(180deg, rgba(198, 22, 22, 0.16), transparent);
   color: #f8fbff;
 }
 
@@ -176,8 +176,8 @@ button {
 }
 
 .panel--soft {
-  background: rgba(255, 255, 255, 0.7);
-  box-shadow: 0 14px 30px rgba(15, 23, 42, 0.08);
+  background: rgba(255, 255, 255, 0.76);
+  box-shadow: 0 14px 30px rgba(22, 22, 22, 0.08);
 }
 
 .card-grid {
@@ -242,7 +242,7 @@ button {
 }
 
 .btn--ghost {
-  background: rgba(255, 255, 255, 0.72);
+  background: rgba(255, 255, 255, 0.8);
   color: var(--foreground);
   border: 1px solid var(--line);
 }
@@ -339,7 +339,7 @@ button {
 }
 
 .badge--muted {
-  background: rgba(91, 102, 120, 0.12);
+  background: rgba(101, 90, 90, 0.12);
   color: var(--muted-foreground);
 }
 
@@ -434,8 +434,8 @@ button {
   gap: 0.45rem;
   padding: 1rem;
   border-radius: 26px;
-  background: linear-gradient(160deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.04));
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: linear-gradient(160deg, rgba(198, 22, 22, 0.18), rgba(255, 255, 255, 0.04));
+  border: 1px solid rgba(198, 22, 22, 0.22);
 }
 
 .sidebar-brand__eyebrow {
@@ -479,7 +479,7 @@ button {
 
 .nav-link:hover,
 .nav-link[data-active="true"] {
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(198, 22, 22, 0.18);
   color: white;
   transform: translateX(2px);
 }
@@ -498,8 +498,8 @@ button {
   gap: 0.75rem;
   padding: 1rem;
   border-radius: 24px;
-  background: rgba(255, 255, 255, 0.09);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(198, 22, 22, 0.18);
 }
 
 .user-card__name {
@@ -523,8 +523,8 @@ button {
   border-radius: 36px;
   padding: 2rem;
   background:
-    radial-gradient(circle at top left, rgba(14, 116, 144, 0.28), transparent 36%),
-    linear-gradient(155deg, #082032, #11324b 54%, #0f5064 100%);
+    radial-gradient(circle at top left, rgba(198, 22, 22, 0.28), transparent 36%),
+    linear-gradient(155deg, #161616, #252525 54%, #5f1010 100%);
   color: white;
   box-shadow: var(--shadow);
   display: flex;
@@ -555,7 +555,7 @@ button {
   border: 1px solid var(--line);
   border-radius: 18px;
   padding: 0.85rem;
-  background: rgba(255, 255, 255, 0.72);
+  background: rgba(255, 255, 255, 0.78);
   display: flex;
   flex-direction: column;
   gap: 0.6rem;

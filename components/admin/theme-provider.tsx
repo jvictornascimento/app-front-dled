@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 
-type AccentKey = "ocean" | "ember" | "forest" | "ink";
+type AccentKey = "brand" | "ruby" | "graphite" | "oxide";
 type DensityKey = "compact" | "comfortable" | "spacious";
 
 interface ThemeSettings {
@@ -19,16 +19,16 @@ interface ThemeContextValue {
 const STORAGE_KEY = "dled-control-theme";
 
 const accentMap: Record<AccentKey, { accent: string; strong: string; soft: string }> = {
-  ocean: { accent: "#0e7490", strong: "#155e75", soft: "rgba(14, 116, 144, 0.14)" },
-  ember: { accent: "#b45309", strong: "#92400e", soft: "rgba(180, 83, 9, 0.14)" },
-  forest: { accent: "#0f766e", strong: "#115e59", soft: "rgba(15, 118, 110, 0.14)" },
-  ink: { accent: "#334155", strong: "#1e293b", soft: "rgba(51, 65, 85, 0.16)" },
+  brand: { accent: "#c61616", strong: "#8f1010", soft: "rgba(198, 22, 22, 0.14)" },
+  ruby: { accent: "#9f1239", strong: "#881337", soft: "rgba(159, 18, 57, 0.14)" },
+  graphite: { accent: "#161616", strong: "#2c2c2c", soft: "rgba(22, 22, 22, 0.14)" },
+  oxide: { accent: "#b91c1c", strong: "#7f1d1d", soft: "rgba(185, 28, 28, 0.14)" },
 };
 
 const ThemeContext = createContext<ThemeContextValue | null>(null);
 
 const defaultSettings: ThemeSettings = {
-  accent: "ocean",
+  accent: "brand",
   density: "comfortable",
   contentWidth: "wide",
 };

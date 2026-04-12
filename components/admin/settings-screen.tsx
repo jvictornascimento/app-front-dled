@@ -19,10 +19,10 @@ export function SettingsScreen() {
           </h2>
           <div className="swatch-grid">
             {[
-              { key: "ocean", label: "Oceano", color: "linear-gradient(135deg,#0e7490,#155e75)" },
-              { key: "ember", label: "Ember", color: "linear-gradient(135deg,#b45309,#92400e)" },
-              { key: "forest", label: "Forest", color: "linear-gradient(135deg,#0f766e,#115e59)" },
-              { key: "ink", label: "Ink", color: "linear-gradient(135deg,#334155,#1e293b)" },
+              { key: "brand", label: "Marca DLED", color: "linear-gradient(135deg,#c61616,#161616)" },
+              { key: "ruby", label: "Ruby", color: "linear-gradient(135deg,#9f1239,#881337)" },
+              { key: "graphite", label: "Graphite", color: "linear-gradient(135deg,#161616,#2c2c2c)" },
+              { key: "oxide", label: "Oxide", color: "linear-gradient(135deg,#b91c1c,#7f1d1d)" },
             ].map((theme) => (
               <div className="swatch" key={theme.key}>
                 <button
