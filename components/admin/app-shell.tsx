@@ -22,11 +22,13 @@ export function AppShell({
   const { user, isHydrated, logout } = useAuth();
   const [openGroups, setOpenGroups] = useState({
     estoque: true,
+    impressoes: true,
     configuracao: true,
   });
 
   const dashboardItem = navigationItems.find((item) => item.href === "/dashboard");
   const stockItems = navigationItems.filter((item) => ["/products", "/categories", "/orders"].includes(item.href));
+  const printItems = [{ href: "/prints/month", title: "Mes", meta: "Etiqueta mensal" }];
   const settingsItems = navigationItems.filter((item) => ["/companies", "/users", "/settings"].includes(item.href));
 
   function isActive(href: string) {
@@ -99,6 +101,20 @@ export function AppShell({
               <span aria-hidden="true">{openGroups.estoque ? "-" : "+"}</span>
             </button>
             {openGroups.estoque ? <div className="nav-section__items">{stockItems.map(renderNavLink)}</div> : null}
+          </div>
+
+          <div className="nav-section">
+            <button
+              type="button"
+              className="nav-section__button"
+              aria-expanded={openGroups.impressoes}
+              data-active={isGroupActive(printItems)}
+              onClick={() => toggleGroup("impressoes")}
+            >
+              <span>Impressoes</span>
+              <span aria-hidden="true">{openGroups.impressoes ? "-" : "+"}</span>
+            </button>
+            {openGroups.impressoes ? <div className="nav-section__items">{printItems.map(renderNavLink)}</div> : null}
           </div>
 
           <div className="nav-section">

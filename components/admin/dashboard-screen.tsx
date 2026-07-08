@@ -88,10 +88,16 @@ export function DashboardScreen() {
               <p>Area reservada para os fluxos de impressao que serao ligados depois.</p>
             </div>
           </div>
-          <button className="quick-action quick-action--disabled" type="button" disabled>
-            <span>Etiquetas de produto</span>
-            <strong>Em breve</strong>
-          </button>
+          <div className="quick-actions">
+            <Link className="quick-action" href="/prints/month">
+              <span>Mes</span>
+              <strong>Abrir</strong>
+            </Link>
+            <button className="quick-action quick-action--disabled" type="button" disabled>
+              <span>Etiquetas de produto</span>
+              <strong>Em breve</strong>
+            </button>
+          </div>
         </article>
       </section>
     </AppShell>
