@@ -63,6 +63,9 @@ export function EntityListScreen({ entityKey }: { entityKey: EntityKey }) {
             onChange={(event) => setQuery(event.target.value)}
             style={{ minWidth: 220 }}
           />
+          <span className="record-count">
+            {filteredItems.length} de {items.length}
+          </span>
           <Link className="btn btn--primary" href={`${entity.route}/new`}>
             Novo {entity.singularLabel}
           </Link>
@@ -72,7 +75,7 @@ export function EntityListScreen({ entityKey }: { entityKey: EntityKey }) {
       {entity.note ? <div className="notice">{entity.note}</div> : null}
       {error ? <div className="notice notice--error">{error}</div> : null}
 
-      <section className="panel" style={{ padding: "1rem" }}>
+      <section className="panel list-panel">
         <div className="table-wrap">
           <table className="table">
             <thead>

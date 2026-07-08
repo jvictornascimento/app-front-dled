@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { navigationItems } from "@/lib/admin-config";
@@ -19,6 +20,34 @@ export function AppShell({
   const pathname = usePathname();
   const router = useRouter();
   const { user, isHydrated, logout } = useAuth();
+  const [openGroups, setOpenGroups] = useState({
+    estoque: true,
+    configuracao: true,
+  });
+
+  const dashboardItem = navigationItems.find((item) => item.href === "/dashboard");
+  const stockItems = navigationItems.filter((item) => ["/products", "/categories", "/orders"].includes(item.href));
+  const settingsItems = navigationItems.filter((item) => ["/companies", "/users", "/settings"].includes(item.href));
+
+  function isActive(href: string) {
+    return pathname === href || pathname.startsWith(`${href}/`);
+  }
+
+  function isGroupActive(items: typeof navigationItems) {
+    return items.some((item) => isActive(item.href));
+  }
+
+  function toggleGroup(group: keyof typeof openGroups) {
+    setOpenGroups((current) => ({ ...current, [group]: !current[group] }));
+  }
+
+  function renderNavLink(item: (typeof navigationItems)[number]) {
+    return (
+      <Link key={item.href} href={item.href} className="nav-link" data-active={isActive(item.href)}>
+        <span>{item.title}</span>
+      </Link>
+    );
+  }
 
   if (!isHydrated) {
     return <div className="empty-state">Preparando o sistema...</div>;
@@ -48,23 +77,43 @@ export function AppShell({
     <div className="shell">
       <aside className="shell__nav">
         <div className="sidebar-brand">
-          <span className="sidebar-brand__eyebrow">DLED Operations</span>
-          <h1 className="sidebar-brand__title">Control Center</h1>
-          <p className="sidebar-brand__desc">
-            Sistema de gestao conectado ao backend administrativo atual.
-          </p>
+          <div className="sidebar-brand__mark">DL</div>
+          <div>
+            <span className="sidebar-brand__eyebrow">DLED</span>
+            <h1 className="sidebar-brand__title">Operations</h1>
+          </div>
         </div>
 
         <nav className="nav-group">
-          {navigationItems.map((item) => {
-            const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
-            return (
-              <Link key={item.href} href={item.href} className="nav-link" data-active={active}>
-                <span>{item.title}</span>
-                <span className="nav-link__meta">{item.meta}</span>
-              </Link>
-            );
-          })}
+          {dashboardItem ? renderNavLink(dashboardItem) : null}
+
+          <div className="nav-section">
+            <button
+              type="button"
+              className="nav-section__button"
+              aria-expanded={openGroups.estoque}
+              data-active={isGroupActive(stockItems)}
+              onClick={() => toggleGroup("estoque")}
+            >
+              <span>Estoque</span>
+              <span aria-hidden="true">{openGroups.estoque ? "-" : "+"}</span>
+            </button>
+            {openGroups.estoque ? <div className="nav-section__items">{stockItems.map(renderNavLink)}</div> : null}
+          </div>
+
+          <div className="nav-section">
+            <button
+              type="button"
+              className="nav-section__button"
+              aria-expanded={openGroups.configuracao}
+              data-active={isGroupActive(settingsItems)}
+              onClick={() => toggleGroup("configuracao")}
+            >
+              <span>Configuracao</span>
+              <span aria-hidden="true">{openGroups.configuracao ? "-" : "+"}</span>
+            </button>
+            {openGroups.configuracao ? <div className="nav-section__items">{settingsItems.map(renderNavLink)}</div> : null}
+          </div>
         </nav>
 
         <div className="user-card">
@@ -72,13 +121,10 @@ export function AppShell({
             <div className="sidebar-brand__eyebrow">Sessao ativa</div>
             <div className="user-card__name">{user.fullName}</div>
             <div className="nav-link__meta">
-              {user.role} • {user.username}
+              {user.role} - {user.username}
             </div>
           </div>
           <div className="toolbar">
-            <button className="btn btn--ghost" onClick={() => router.push("/settings")}>
-              Preferencias
-            </button>
             <button
               className="btn btn--ghost"
               onClick={async () => {
@@ -94,15 +140,22 @@ export function AppShell({
 
       <main className="shell__main">
         <div className="content-frame">
-          <section className="panel" style={{ padding: "1.35rem 1.45rem" }}>
+          <header className="shell__topbar">
             <div className="page-header">
               <div>
+                <div className="page-meta">{pathname}</div>
                 <h1 className="page-title">{title}</h1>
                 <p className="page-subtitle">{subtitle}</p>
               </div>
-              {actions ? <div className="toolbar">{actions}</div> : null}
+              <div className="topbar__right">
+                <div className="topbar__session">
+                  <span>{user.role}</span>
+                  <strong>{user.username}</strong>
+                </div>
+                {actions ? <div className="toolbar">{actions}</div> : null}
+              </div>
             </div>
-          </section>
+          </header>
           {children}
         </div>
       </main>
