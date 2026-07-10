@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { AppShell } from "@/components/admin/app-shell";
 import { useThemeSettings } from "@/components/admin/theme-provider";
 
@@ -84,6 +85,23 @@ export function SettingsScreen() {
             </div>
           </div>
         </article>
+      </section>
+
+      <section className="panel" style={{ padding: "1.2rem" }}>
+        <div className="section-heading">
+          <div>
+            <div className="kpi-label">impressoes</div>
+            <h2 style={{ fontFamily: "var(--font-display)", fontSize: "1.4rem", margin: "0.5rem 0 0.25rem" }}>
+              Templates de impressao
+            </h2>
+            <p className="page-subtitle">
+              Cadastre os modelos PDF usados em etiquetas e relatorios, com contexto de uso para aparecer no local certo.
+            </p>
+          </div>
+          <Link className="btn btn--primary" href="/settings/print-templates">
+            Gerenciar templates
+          </Link>
+        </div>
       </section>
 
       <section className="panel" style={{ padding: "1.2rem" }}>

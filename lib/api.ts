@@ -1,4 +1,17 @@
-import type { AuthResponse, CategoryDTO, CategoryTreeDTO, CompanyDto, OrderDto, ProductCardDto, ProductDetailDto, StandardError, UserDto } from "@/types/api";
+import type {
+  AuthResponse,
+  CategoryDTO,
+  CategoryTreeDTO,
+  CompanyDto,
+  OrderDto,
+  PrintTemplateDto,
+  PrintTemplateListDto,
+  PrintTemplatePayload,
+  ProductCardDto,
+  ProductDetailDto,
+  StandardError,
+  UserDto,
+} from "@/types/api";
 
 export class ApiError extends Error {
   status: number;
@@ -66,6 +79,9 @@ export const api = {
   },
   logout() {
     return request<{ message: string }>("/auth/logout", { method: "POST" });
+  },
+  me() {
+    return request<UserDto>("/auth/me");
   },
 
   listProducts() {
@@ -164,5 +180,24 @@ export const api = {
   },
   deleteUser(id: string) {
     return request<void>(`/users/${id}`, { method: "DELETE" });
+  },
+
+  listPrintTemplates() {
+    return request<PrintTemplateListDto[]>("/print-templates");
+  },
+  listPrintTemplatesByContext(usageContext: string) {
+    return request<PrintTemplateListDto[]>(`/print-templates/context/${usageContext}`);
+  },
+  getPrintTemplate(id: string) {
+    return request<PrintTemplateDto>(`/print-templates/${id}`);
+  },
+  createPrintTemplate(payload: PrintTemplatePayload) {
+    return request<PrintTemplateDto>("/print-templates", { method: "POST", body: payload });
+  },
+  updatePrintTemplate(id: string, payload: PrintTemplatePayload) {
+    return request<PrintTemplateDto>(`/print-templates/${id}`, { method: "PUT", body: payload });
+  },
+  deletePrintTemplate(id: string) {
+    return request<void>(`/print-templates/${id}`, { method: "DELETE" });
   },
 };

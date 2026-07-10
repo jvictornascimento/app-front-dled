@@ -854,6 +854,64 @@ button {
   overflow-wrap: anywhere;
 }
 
+.print-template-layout {
+  display: grid;
+  grid-template-columns: 300px minmax(0, 1fr);
+  gap: 0.85rem;
+  align-items: start;
+}
+
+.print-template-list {
+  padding: 0.95rem;
+  position: sticky;
+  top: 96px;
+}
+
+.template-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.template-list__item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.18rem;
+  width: 100%;
+  padding: 0.68rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: #f8fafc;
+  color: var(--foreground);
+  text-align: left;
+}
+
+.template-list__item:hover,
+.template-list__item[data-active="true"] {
+  border-color: var(--line-strong);
+  background: white;
+}
+
+.template-list__item span {
+  color: var(--muted-foreground);
+  font-size: 0.8rem;
+}
+
+.print-template-workspace {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  min-width: 0;
+}
+
+.pdfme-designer {
+  min-height: 720px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: white;
+}
+
 .task-list {
   display: flex;
   flex-direction: column;
@@ -1006,6 +1064,14 @@ button {
 
   .print-builder {
     grid-template-columns: 1fr;
+  }
+
+  .print-template-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .print-template-list {
+    position: static;
   }
 
   .login-shell {

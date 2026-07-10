@@ -93,6 +93,10 @@ export function DashboardScreen() {
               <span>Mes</span>
               <strong>Abrir</strong>
             </Link>
+            <Link className="quick-action" href="/prints">
+              <span>Templates salvos</span>
+              <strong>Abrir</strong>
+            </Link>
             <button className="quick-action quick-action--disabled" type="button" disabled>
               <span>Etiquetas de produto</span>
               <strong>Em breve</strong>

@@ -1,6 +1,7 @@
 export type ProductStatus = "AVAILABLE" | "UNAVAILABLE" | "ON_REQUEST";
 export type UserRole = "ADMIN" | "USER" | "EMPLOY" | "SELLER" | "CLIENT";
 export type CompanyType = "OWN" | "SUPPLIER";
+export type PrintTemplateUsageContext = "PRINTS_MENU" | "PRODUCT" | "ORDER" | "MONTH_LABEL" | "REPORT";
 
 export interface StandardError {
   timestamp: string;
@@ -132,4 +133,30 @@ export interface AuthResponse {
 export interface LoginRequest {
   username: string;
   password: string;
+}
+
+export interface PrintTemplateListDto {
+  id: number;
+  name: string;
+  description: string | null;
+  usageContext: PrintTemplateUsageContext;
+  active: boolean;
+  widthMm: number | null;
+  heightMm: number | null;
+  updatedAt: string;
+}
+
+export interface PrintTemplateDto extends PrintTemplateListDto {
+  templateJson: string;
+  createdAt: string;
+}
+
+export interface PrintTemplatePayload {
+  name: string;
+  description: string | null;
+  usageContext: PrintTemplateUsageContext;
+  active: boolean;
+  templateJson: string;
+  widthMm: number | null;
+  heightMm: number | null;
 }

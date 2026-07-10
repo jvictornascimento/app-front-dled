@@ -28,7 +28,10 @@ export function AppShell({
 
   const dashboardItem = navigationItems.find((item) => item.href === "/dashboard");
   const stockItems = navigationItems.filter((item) => ["/products", "/categories", "/orders"].includes(item.href));
-  const printItems = [{ href: "/prints/month", title: "Mes", meta: "Etiqueta mensal" }];
+  const printItems = [
+    { href: "/prints", title: "Templates", meta: "Modelos ativos" },
+    { href: "/prints/month", title: "Mes", meta: "Etiqueta mensal" },
+  ];
   const settingsItems = navigationItems.filter((item) => ["/companies", "/users", "/settings"].includes(item.href));
 
   function isActive(href: string) {
