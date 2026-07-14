@@ -105,7 +105,7 @@ export function LoginScreen() {
 
             <div className="field field--span-2">
               <div className="notice">
-                Dica de ambiente local: o backend atual sobe em <strong>http://localhost:8081/v1</strong> e usa a API key
+                Dica de ambiente local: o backend atual sobe em <strong>http://127.0.0.1:8081/v1</strong> e usa a API key
                 padrão <strong>test-api-key</strong> para leituras públicas.
               </div>
             </div>

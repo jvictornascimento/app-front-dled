@@ -1,7 +1,30 @@
 import { NextRequest } from "next/server";
 
-const BACKEND_BASE_URL = process.env.BACKEND_API_URL ?? process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8081/v1";
+function normalizeLocalBackendUrl(url: string) {
+  return url.replace("http://localhost:", "http://127.0.0.1:");
+}
+
+const BACKEND_BASE_URL = normalizeLocalBackendUrl(
+  process.env.BACKEND_API_URL ?? process.env.NEXT_PUBLIC_API_URL ?? "http://127.0.0.1:8081/v1",
+);
 const API_KEY = process.env.BACKEND_API_KEY ?? process.env.NEXT_PUBLIC_API_KEY ?? "test-api-key";
+
+function backendUnavailable(request: NextRequest, target: URL, cause: unknown) {
+  const message = cause instanceof Error ? cause.message : "Backend unavailable";
+
+  console.error(`[backend-proxy] Failed to reach ${target.toString()}: ${message}`);
+
+  return Response.json(
+    {
+      timestamp: new Date().toISOString(),
+      status: 500,
+      error: "Internal Server Error",
+      message: "Backend indisponivel. Verifique se a API esta em execucao e acessivel pelo front.",
+      path: request.nextUrl.pathname,
+    },
+    { status: 500 },
+  );
+}
 
 async function forward(request: NextRequest, segments: string[]) {
   const target = new URL(`${BACKEND_BASE_URL}/${segments.join("/")}`);
@@ -28,13 +51,18 @@ async function forward(request: NextRequest, segments: string[]) {
   const method = request.method.toUpperCase();
   const body = method === "GET" || method === "HEAD" ? undefined : await request.arrayBuffer();
 
-  const response = await fetch(target, {
-    method,
-    headers,
-    body,
-    redirect: "manual",
-    cache: "no-store",
-  });
+  let response: Response;
+  try {
+    response = await fetch(target, {
+      method,
+      headers,
+      body,
+      redirect: "manual",
+      cache: "no-store",
+    });
+  } catch (cause) {
+    return backendUnavailable(request, target, cause);
+  }
 
   const nextHeaders = new Headers();
   const responseContentType = response.headers.get("content-type");

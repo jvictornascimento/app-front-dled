@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useMemo, useState } from "react";
+import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { api } from "@/lib/api";
 import type { UserDto } from "@/types/api";
 
@@ -28,34 +28,66 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return null;
     }
   });
+  const [isHydrated, setIsHydrated] = useState(false);
+
+  function persistUser(nextUser: UserDto | null) {
+    setUserState(nextUser);
+    if (nextUser) {
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(nextUser));
+      return;
+    }
+    window.localStorage.removeItem(STORAGE_KEY);
+  }
+
+  useEffect(() => {
+    let active = true;
+
+    async function revalidateSession() {
+      try {
+        const currentUser = await api.me();
+        if (!active) {
+          return;
+        }
+        persistUser(currentUser);
+      } catch {
+        if (!active) {
+          return;
+        }
+        persistUser(null);
+      } finally {
+        if (active) {
+          setIsHydrated(true);
+        }
+      }
+    }
+
+    void revalidateSession();
+
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const value = useMemo<AuthContextValue>(
     () => ({
       user,
-      isHydrated: true,
+      isHydrated,
       async login(username, password) {
         const response = await api.login({ username, password });
-        setUserState(response.user);
-        window.localStorage.setItem(STORAGE_KEY, JSON.stringify(response.user));
+        persistUser(response.user);
       },
       async logout() {
         try {
           await api.logout();
         } finally {
-          setUserState(null);
-          window.localStorage.removeItem(STORAGE_KEY);
+          persistUser(null);
         }
       },
       setUser(nextUser) {
-        setUserState(nextUser);
-        if (nextUser) {
-          window.localStorage.setItem(STORAGE_KEY, JSON.stringify(nextUser));
-          return;
-        }
-        window.localStorage.removeItem(STORAGE_KEY);
+        persistUser(nextUser);
       },
     }),
-    [user],
+    [isHydrated, user],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
