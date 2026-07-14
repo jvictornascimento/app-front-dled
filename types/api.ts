@@ -1,7 +1,7 @@
 export type ProductStatus = "AVAILABLE" | "UNAVAILABLE" | "ON_REQUEST";
 export type UserRole = "ADMIN" | "USER" | "EMPLOY" | "SELLER" | "CLIENT";
 export type CompanyType = "OWN" | "SUPPLIER";
-export type PrintTemplateUsageContext = "PRINTS_MENU" | "PRODUCT" | "ORDER" | "MONTH_LABEL" | "REPORT";
+export type PrintTemplateUsageContext = "PRINTS_MENU" | "PRODUCT" | "WOOD" | "ORDER" | "MONTH_LABEL" | "REPORT";
 
 export interface StandardError {
   timestamp: string;
@@ -159,4 +159,53 @@ export interface PrintTemplatePayload {
   templateJson: string;
   widthMm: number | null;
   heightMm: number | null;
+}
+
+export interface WoodCategorySimpleDto {
+  id: number;
+  name: string;
+}
+
+export interface WoodProductListDto {
+  id: number;
+  imgUrl: string | null;
+  name: string;
+  caixa: string | null;
+  active: boolean;
+}
+
+export interface WoodProductVariationDto {
+  id: number;
+  description: string | null;
+  color: string | null;
+  sku: number | null;
+  ean: number | null;
+  listImgs: string[];
+  size: string | null;
+  price: number | null;
+  labelImageUrl: string | null;
+  labelImagePublicId: string | null;
+  active: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface WoodProductFullDto {
+  id: number;
+  imgUrl: string | null;
+  name: string;
+  description: string | null;
+  caixa: string | null;
+  woodType: string | null;
+  finish: string | null;
+  thicknessMm: number | null;
+  widthMm: number | null;
+  heightMm: number | null;
+  lengthMm: number | null;
+  weightKg: number | null;
+  categories: WoodCategorySimpleDto[];
+  variations: WoodProductVariationDto[];
+  active: boolean;
+  createdAt: string;
+  updatedAt: string;
 }

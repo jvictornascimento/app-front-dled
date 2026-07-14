@@ -11,6 +11,9 @@ import type {
   ProductDetailDto,
   StandardError,
   UserDto,
+  WoodProductFullDto,
+  WoodProductListDto,
+  WoodProductVariationDto,
 } from "@/types/api";
 
 export class ApiError extends Error {
@@ -199,5 +202,43 @@ export const api = {
   },
   deletePrintTemplate(id: string) {
     return request<void>(`/print-templates/${id}`, { method: "DELETE" });
+  },
+
+  listWoodProducts() {
+    return request<WoodProductListDto[]>("/wood/products");
+  },
+  getWoodProduct(id: string) {
+    return request<WoodProductFullDto>(`/wood/products/${id}`);
+  },
+  createWoodProduct(payload: unknown) {
+    return request<WoodProductFullDto>("/wood/products", { method: "POST", body: payload });
+  },
+  updateWoodProduct(id: string, payload: unknown) {
+    return request<WoodProductFullDto>(`/wood/products/${id}`, { method: "PUT", body: payload });
+  },
+  uploadWoodProductImage(id: string, file: File) {
+    const formData = new FormData();
+    formData.append("file", file);
+    return request<WoodProductFullDto>(`/wood/products/${id}/image`, { method: "POST", body: formData });
+  },
+  deleteWoodProduct(id: string) {
+    return request<void>(`/wood/products/${id}`, { method: "DELETE" });
+  },
+  createWoodVariation(productId: string, payload: unknown) {
+    return request<WoodProductVariationDto>(`/wood/products/${productId}/variations`, { method: "POST", body: payload });
+  },
+  updateWoodVariation(productId: string, variationId: string, payload: unknown) {
+    return request<WoodProductVariationDto>(`/wood/products/${productId}/variations/${variationId}`, { method: "PUT", body: payload });
+  },
+  deleteWoodVariation(productId: string, variationId: string) {
+    return request<void>(`/wood/products/${productId}/variations/${variationId}`, { method: "DELETE" });
+  },
+  uploadWoodVariationLabel(productId: string, variationId: string, file: File) {
+    const formData = new FormData();
+    formData.append("file", file);
+    return request<WoodProductVariationDto>(`/wood/products/${productId}/variations/${variationId}/label`, {
+      method: "POST",
+      body: formData,
+    });
   },
 };

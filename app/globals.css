@@ -373,6 +373,10 @@ button {
   gap: var(--density-gap);
 }
 
+.form-grid--single {
+  grid-template-columns: 1fr;
+}
+
 .field {
   display: flex;
   flex-direction: column;
@@ -827,6 +831,45 @@ button {
   cursor: not-allowed;
   opacity: 0.72;
   text-align: left;
+}
+
+.wood-product-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(360px, 0.75fr);
+  gap: 0.85rem;
+  align-items: start;
+}
+
+.wood-variation-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.wood-variation-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 92px auto;
+  gap: 0.75rem;
+  align-items: center;
+  padding: 0.75rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: #f8fafc;
+}
+
+.wood-variation-card p {
+  margin: 0.2rem 0 0.55rem;
+  color: var(--muted-foreground);
+  font-size: 0.84rem;
+}
+
+.wood-variation-card img {
+  width: 92px;
+  height: 64px;
+  object-fit: contain;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: white;
 }
 
 .print-builder {

@@ -275,6 +275,7 @@ export const navigationItems = [
   { href: "/dashboard", title: "Painel", meta: "Visao geral" },
   { href: "/products", title: "Produtos", meta: "Catalogo tecnico" },
   { href: "/categories", title: "Categorias", meta: "Estrutura comercial" },
+  { href: "/wood-products", title: "Produtos wood", meta: "Linha madeira" },
   { href: "/companies", title: "Empresas", meta: "Origem e fornecedores" },
   { href: "/orders", title: "Pedidos", meta: "Compras e lotes" },
   { href: "/users", title: "Usuarios", meta: "Acesso operacional" },

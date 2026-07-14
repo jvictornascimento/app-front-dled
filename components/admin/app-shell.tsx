@@ -29,9 +29,11 @@ export function AppShell({
   });
 
   const dashboardItem = navigationItems.find((item) => item.href === "/dashboard");
-  const stockItems = navigationItems.filter((item) => ["/products", "/categories", "/orders"].includes(item.href));
+  const stockItems = navigationItems.filter((item) =>
+    ["/products", "/categories", "/wood-products", "/orders"].includes(item.href),
+  );
   const printItems = [
-    { href: "/prints", title: "Templates", meta: "Modelos ativos" },
+    { href: "/prints/wood", title: "Wood", meta: "Etiqueta wood" },
     { href: "/prints/month", title: "Mes", meta: "Etiqueta mensal" },
   ];
   const settingsItems = [
