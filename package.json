@@ -13,6 +13,7 @@
     "@pdfme/generator": "^6.1.11",
     "@pdfme/schemas": "^6.1.11",
     "@pdfme/ui": "^6.1.11",
+    "dayjs": "^1.11.21",
     "next": "16.2.3",
     "react": "19.2.4",
     "react-dom": "19.2.4"

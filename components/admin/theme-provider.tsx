@@ -9,6 +9,8 @@ interface ThemeSettings {
   accent: AccentKey;
   density: DensityKey;
   contentWidth: "normal" | "wide";
+  appIconUrl: string | null;
+  faviconUrl: string | null;
 }
 
 interface ThemeContextValue {
@@ -31,6 +33,8 @@ const defaultSettings: ThemeSettings = {
   accent: "brand",
   density: "comfortable",
   contentWidth: "wide",
+  appIconUrl: null,
+  faviconUrl: null,
 };
 
 function applySettings(settings: ThemeSettings) {
@@ -41,6 +45,22 @@ function applySettings(settings: ThemeSettings) {
   root.style.setProperty("--accent-soft", accent.soft);
   root.style.setProperty("--content-width", settings.contentWidth === "wide" ? "1720px" : "1440px");
   root.dataset.density = settings.density;
+
+  const currentFavicon = document.querySelector<HTMLLinkElement>('link[rel="icon"]');
+  const favicon = currentFavicon ?? document.createElement("link");
+  favicon.rel = "icon";
+  favicon.href = settings.faviconUrl ?? "/favicon.ico";
+
+  if (!currentFavicon) {
+    document.head.appendChild(favicon);
+  }
+}
+
+function normalizeSettings(settings: Partial<ThemeSettings>): ThemeSettings {
+  return {
+    ...defaultSettings,
+    ...settings,
+  };
 }
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
@@ -51,7 +71,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
     try {
       const stored = window.localStorage.getItem(STORAGE_KEY);
-      return stored ? (JSON.parse(stored) as ThemeSettings) : defaultSettings;
+      return stored ? normalizeSettings(JSON.parse(stored) as Partial<ThemeSettings>) : defaultSettings;
     } catch {
       return defaultSettings;
     }

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { navigationItems } from "@/lib/admin-config";
 import { useAuth } from "@/components/admin/auth-provider";
+import { useThemeSettings } from "@/components/admin/theme-provider";
 
 export function AppShell({
   title,
@@ -20,6 +21,7 @@ export function AppShell({
   const pathname = usePathname();
   const router = useRouter();
   const { user, isHydrated, logout } = useAuth();
+  const { settings } = useThemeSettings();
   const [openGroups, setOpenGroups] = useState({
     estoque: true,
     impressoes: true,
@@ -32,7 +34,10 @@ export function AppShell({
     { href: "/prints", title: "Templates", meta: "Modelos ativos" },
     { href: "/prints/month", title: "Mes", meta: "Etiqueta mensal" },
   ];
-  const settingsItems = navigationItems.filter((item) => ["/companies", "/users", "/settings"].includes(item.href));
+  const settingsItems = [
+    ...navigationItems.filter((item) => ["/companies", "/users", "/settings"].includes(item.href)),
+    { href: "/settings/print-templates", title: "Template etiqueta", meta: "Modelos de etiqueta" },
+  ];
 
   function isActive(href: string) {
     return pathname === href || pathname.startsWith(`${href}/`);
@@ -82,7 +87,18 @@ export function AppShell({
     <div className="shell">
       <aside className="shell__nav">
         <div className="sidebar-brand">
-          <div className="sidebar-brand__mark">DL</div>
+          <div className="sidebar-brand__mark">
+            {settings.appIconUrl ? (
+              <span
+                aria-label="Icone do sistema"
+                className="sidebar-brand__image"
+                role="img"
+                style={{ backgroundImage: `url(${settings.appIconUrl})` }}
+              />
+            ) : (
+              "DL"
+            )}
+          </div>
           <div>
             <span className="sidebar-brand__eyebrow">DLED</span>
             <h1 className="sidebar-brand__title">Operations</h1>

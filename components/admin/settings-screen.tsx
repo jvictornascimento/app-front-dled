@@ -1,11 +1,47 @@
 "use client";
 
-import Link from "next/link";
 import { AppShell } from "@/components/admin/app-shell";
+import { useAuth } from "@/components/admin/auth-provider";
 import { useThemeSettings } from "@/components/admin/theme-provider";
+
+function readFileAsDataUrl(file: File) {
+  return new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result));
+    reader.onerror = () => reject(reader.error);
+    reader.readAsDataURL(file);
+  });
+}
 
 export function SettingsScreen() {
   const { settings, setSettings } = useThemeSettings();
+  const { user } = useAuth();
+  const isAdmin = user?.role === "ADMIN";
+
+  async function updateAppIcon(fileList: FileList | null) {
+    if (!isAdmin) return;
+
+    const file = fileList?.[0];
+    if (!file) return;
+
+    const appIconUrl = await readFileAsDataUrl(file);
+    setSettings({ ...settings, appIconUrl });
+  }
+
+  async function updateFavicon(fileList: FileList | null) {
+    if (!isAdmin) return;
+
+    const file = fileList?.[0];
+    if (!file) return;
+
+    if (!file.name.toLowerCase().endsWith(".ico")) {
+      window.alert("O favicon deve ser um arquivo .ico.");
+      return;
+    }
+
+    const faviconUrl = await readFileAsDataUrl(file);
+    setSettings({ ...settings, faviconUrl });
+  }
 
   return (
     <AppShell
@@ -88,38 +124,79 @@ export function SettingsScreen() {
       </section>
 
       <section className="panel" style={{ padding: "1.2rem" }}>
-        <div className="section-heading">
-          <div>
-            <div className="kpi-label">impressoes</div>
-            <h2 style={{ fontFamily: "var(--font-display)", fontSize: "1.4rem", margin: "0.5rem 0 0.25rem" }}>
-              Templates de impressao
-            </h2>
-            <p className="page-subtitle">
-              Cadastre os modelos PDF usados em etiquetas e relatorios, com contexto de uso para aparecer no local certo.
-            </p>
-          </div>
-          <Link className="btn btn--primary" href="/settings/print-templates">
-            Gerenciar templates
-          </Link>
-        </div>
-      </section>
-
-      <section className="panel" style={{ padding: "1.2rem" }}>
-        <div className="kpi-label">preview</div>
+        <div className="kpi-label">identidade</div>
         <h2 style={{ fontFamily: "var(--font-display)", fontSize: "1.4rem", margin: "0.5rem 0 1rem" }}>
-          Como o sistema responde
+          Icones do sistema
         </h2>
-        <div className="card-grid">
-          <div className="panel panel--soft" style={{ padding: "1rem" }}>
-            <div className="kpi-label">cartao</div>
-            <p className="kpi-value" style={{ fontSize: "1.6rem" }}>
-              128
-            </p>
-            <span className="badge badge--accent">Accent ativo</span>
+
+        {!isAdmin ? (
+          <div className="notice notice--error" style={{ marginBottom: "1rem" }}>
+            Somente usuarios administradores podem alterar os icones do sistema.
           </div>
-          <div className="panel panel--soft" style={{ padding: "1rem" }}>
-            <div className="kpi-label">tabela</div>
-            <div className="notice">A densidade altera o respiro visual dos formularios e blocos de dados.</div>
+        ) : null}
+
+        <div className="card-grid">
+          <div className="asset-card">
+            <div className="asset-card__header">
+              <div>
+                <div className="kpi-label">icone</div>
+                <strong>Icone do painel</strong>
+              </div>
+              {settings.appIconUrl ? (
+                <button
+                  className="btn btn--ghost"
+                  type="button"
+                  disabled={!isAdmin}
+                  onClick={() => setSettings({ ...settings, appIconUrl: null })}
+                >
+                  Remover
+                </button>
+              ) : null}
+            </div>
+            <input type="file" accept="image/*" disabled={!isAdmin} onChange={(event) => updateAppIcon(event.target.files)} />
+            {settings.appIconUrl ? (
+              <div
+                aria-label="Icone do painel"
+                className="asset-card__preview asset-card__preview--icon"
+                role="img"
+                style={{ backgroundImage: `url(${settings.appIconUrl})` }}
+              />
+            ) : (
+              <div className="empty-state">Nenhum icone cadastrado.</div>
+            )}
+          </div>
+
+          <div className="asset-card">
+            <div className="asset-card__header">
+              <div>
+                <div className="kpi-label">favicon</div>
+                <strong>Favicon do navegador</strong>
+              </div>
+              {settings.faviconUrl ? (
+                <button
+                  className="btn btn--ghost"
+                  type="button"
+                  disabled={!isAdmin}
+                  onClick={() => setSettings({ ...settings, faviconUrl: null })}
+                >
+                  Remover
+                </button>
+              ) : null}
+            </div>
+            <input type="file" accept=".ico,image/x-icon" disabled={!isAdmin} onChange={(event) => updateFavicon(event.target.files)} />
+            {settings.faviconUrl ? (
+              <div
+                aria-label="Favicon do sistema"
+                className="asset-card__preview asset-card__preview--icon"
+                role="img"
+                style={{ backgroundImage: `url(${settings.faviconUrl})` }}
+              />
+            ) : (
+              <div className="empty-state">Nenhum favicon cadastrado.</div>
+            )}
+            <div className="field__hint" style={{ marginTop: "0.6rem" }}>
+              Aceita somente arquivo .ico.
+            </div>
           </div>
         </div>
       </section>

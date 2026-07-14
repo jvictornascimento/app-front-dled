@@ -2,23 +2,12 @@
 
 import type { Template } from "@pdfme/common";
 import { generate } from "@pdfme/generator";
-import { image, multiVariableText, text, barcodes, table, line, rectangle, ellipse } from "@pdfme/schemas";
 import { useEffect, useState } from "react";
 import { ApiError, api } from "@/lib/api";
+import { pdfPlugins } from "@/lib/pdfme";
+import { expandTemplateColumns, getPrintFieldSourceName } from "@/lib/print-layout";
 import { AppShell } from "@/components/admin/app-shell";
 import type { PrintTemplateDto, PrintTemplateListDto } from "@/types/api";
-
-const pdfPlugins = {
-  Text: text,
-  MultiVariableText: multiVariableText,
-  Image: image,
-  QRCode: barcodes.qrcode,
-  Code128: barcodes.code128,
-  Table: table,
-  Line: line,
-  Rectangle: rectangle,
-  Ellipse: ellipse,
-};
 
 function parseTemplate(templateJson: string) {
   return JSON.parse(templateJson) as Template;
@@ -29,7 +18,8 @@ function buildSampleInput(template: Template) {
 
   template.schemas.flat().forEach((schema) => {
     if (!schema.name) return;
-    input[schema.name] = schema.name === "mesAno" ? "julho/2026" : schema.content ? String(schema.content) : schema.name;
+    const sourceName = getPrintFieldSourceName(schema.name);
+    input[schema.name] = sourceName === "mesAno" ? "julho/2026" : schema.content ? String(schema.content) : sourceName;
   });
 
   return input;
@@ -37,9 +27,10 @@ function buildSampleInput(template: Template) {
 
 async function openPdf(detail: PrintTemplateDto) {
   const template = parseTemplate(detail.templateJson);
+  const printTemplate = expandTemplateColumns(template);
   const pdf = await generate({
-    template,
-    inputs: [buildSampleInput(template)],
+    template: printTemplate,
+    inputs: [buildSampleInput(printTemplate)],
     plugins: pdfPlugins,
   });
   const blob = new Blob([pdf.buffer], { type: "application/pdf" });
