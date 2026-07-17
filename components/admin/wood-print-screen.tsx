@@ -26,7 +26,7 @@ function asText(value: unknown) {
 
 function buildWoodValues(record: WoodPrintRecord) {
   const { product, variation } = record;
-  const price = variation.price ?? 0;
+  const price = product.price ?? 0;
   const labelImageUrl = variation.labelImageUrl ?? "";
 
   return {
@@ -34,31 +34,25 @@ function buildWoodValues(record: WoodPrintRecord) {
     "produto.nome": product.name,
     "produto.descricao": product.description ?? "",
     "produto.caixa": product.caixa ?? "",
-    "produto.tipoMadeira": product.woodType ?? "",
-    "produto.acabamento": product.finish ?? "",
-    "produto.espessuraMm": asText(product.thicknessMm),
+    "produto.preco": asText(price),
+    "produto.precoFormatado": formatCurrency(price),
     "produto.larguraMm": asText(product.widthMm),
     "produto.alturaMm": asText(product.heightMm),
     "produto.comprimentoMm": asText(product.lengthMm),
     "produto.pesoKg": asText(product.weightKg),
     "produto.imagem": product.imgUrl ?? "",
     "variacao.id": asText(variation.id),
-    "variacao.descricao": variation.description ?? "",
     "variacao.cor": variation.color ?? "",
     "variacao.sku": asText(variation.sku),
     "variacao.ean": asText(variation.ean),
-    "variacao.tamanho": variation.size ?? "",
-    "variacao.preco": asText(price),
-    "variacao.precoFormatado": formatCurrency(price),
     "variacao.etiqueta": labelImageUrl,
     etiqueta: labelImageUrl,
     sku: asText(variation.sku),
     ean: asText(variation.ean),
     nome: product.name,
-    descricao: variation.description ?? product.description ?? "",
+    descricao: product.description ?? "",
     caixa: product.caixa ?? "",
     cor: variation.color ?? "",
-    tamanho: variation.size ?? "",
     preco: asText(price),
     precoFormatado: formatCurrency(price),
   };
@@ -150,9 +144,7 @@ export function WoodPrintScreen() {
         record.variation.sku,
         record.variation.ean,
         record.product.name,
-        record.variation.description,
         record.variation.color,
-        record.variation.size,
       ]
         .filter(Boolean)
         .some((value) => String(value).toLowerCase().includes(query)),
@@ -321,7 +313,7 @@ export function WoodPrintScreen() {
                 <label htmlFor="wood-print-sku">Pesquisar por SKU</label>
                 <input
                   id="wood-print-sku"
-                  placeholder="Digite SKU, EAN, produto, cor ou tamanho"
+                  placeholder="Digite SKU, EAN, produto ou cor"
                   value={skuQuery}
                   onChange={(event) => setSkuQuery(event.target.value)}
                 />
@@ -341,7 +333,7 @@ export function WoodPrintScreen() {
                       <span>
                         SKU {record.variation.sku ?? "-"} - EAN {record.variation.ean ?? "-"}
                       </span>
-                      <span>{[record.variation.description, record.variation.color, record.variation.size].filter(Boolean).join(" / ") || "Sem atributos"}</span>
+                      <span>{record.variation.color || "Sem cor"}</span>
                     </button>
                   ))}
                 </div>
@@ -351,7 +343,7 @@ export function WoodPrintScreen() {
               <div className="field field--span-2">
                 <div className="notice">
                   Campos principais: <strong>sku</strong>, <strong>ean</strong>, <strong>nome</strong>, <strong>descricao</strong>,
-                  <strong> caixa</strong>, <strong>cor</strong>, <strong>tamanho</strong>, <strong>precoFormatado</strong>,
+                  <strong> caixa</strong>, <strong>cor</strong>, <strong>precoFormatado</strong>,
                   <strong> etiqueta</strong>, <strong>produto.nome</strong>, <strong>variacao.sku</strong> e
                   <strong> variacao.etiqueta</strong>.
                 </div>

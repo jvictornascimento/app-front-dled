@@ -5,7 +5,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { ApiError, api } from "@/lib/api";
-import { formatCurrency } from "@/lib/format";
 import { AppShell } from "@/components/admin/app-shell";
 import type { WoodProductFullDto, WoodProductListDto, WoodProductVariationDto } from "@/types/api";
 
@@ -16,9 +15,7 @@ type ProductForm = {
   description: string;
   imgUrl: string;
   caixa: string;
-  woodType: string;
-  finish: string;
-  thicknessMm: string;
+  price: string;
   widthMm: string;
   heightMm: string;
   lengthMm: string;
@@ -28,12 +25,9 @@ type ProductForm = {
 
 type VariationForm = {
   id: number | null;
-  description: string;
   color: string;
   sku: string;
   ean: string;
-  size: string;
-  price: string;
   active: boolean;
 };
 
@@ -42,9 +36,7 @@ const emptyProductForm: ProductForm = {
   description: "",
   imgUrl: "",
   caixa: "",
-  woodType: "",
-  finish: "",
-  thicknessMm: "",
+  price: "",
   widthMm: "",
   heightMm: "",
   lengthMm: "",
@@ -54,12 +46,9 @@ const emptyProductForm: ProductForm = {
 
 const emptyVariationForm: VariationForm = {
   id: null,
-  description: "",
   color: "",
   sku: "",
   ean: "",
-  size: "",
-  price: "",
   active: true,
 };
 
@@ -74,9 +63,7 @@ function productToForm(product: WoodProductFullDto): ProductForm {
     description: product.description ?? "",
     imgUrl: product.imgUrl ?? "",
     caixa: product.caixa ?? "",
-    woodType: product.woodType ?? "",
-    finish: product.finish ?? "",
-    thicknessMm: product.thicknessMm?.toString() ?? "",
+    price: product.price?.toString() ?? "",
     widthMm: product.widthMm?.toString() ?? "",
     heightMm: product.heightMm?.toString() ?? "",
     lengthMm: product.lengthMm?.toString() ?? "",
@@ -88,12 +75,9 @@ function productToForm(product: WoodProductFullDto): ProductForm {
 function variationToForm(variation: WoodProductVariationDto): VariationForm {
   return {
     id: variation.id,
-    description: variation.description ?? "",
     color: variation.color ?? "",
     sku: variation.sku?.toString() ?? "",
     ean: variation.ean?.toString() ?? "",
-    size: variation.size ?? "",
-    price: variation.price?.toString() ?? "",
     active: variation.active,
   };
 }
@@ -104,9 +88,7 @@ function buildProductPayload(form: ProductForm) {
     description: form.description || null,
     imgUrl: form.imgUrl || null,
     caixa: form.caixa || null,
-    woodType: form.woodType || null,
-    finish: form.finish || null,
-    thicknessMm: optionalNumber(form.thicknessMm),
+    price: optionalNumber(form.price),
     widthMm: optionalNumber(form.widthMm),
     heightMm: optionalNumber(form.heightMm),
     lengthMm: optionalNumber(form.lengthMm),
@@ -118,13 +100,10 @@ function buildProductPayload(form: ProductForm) {
 
 function buildVariationPayload(form: VariationForm) {
   return {
-    description: form.description || null,
     color: form.color || null,
     sku: optionalNumber(form.sku),
     ean: optionalNumber(form.ean),
     listImgs: [],
-    size: form.size || null,
-    price: optionalNumber(form.price),
     active: form.active,
   };
 }
@@ -447,6 +426,17 @@ function WoodProductFormScreen({ mode, id }: { mode: "create" | "edit"; id?: str
               <label htmlFor="wood-caixa">Caixa</label>
               <input id="wood-caixa" value={form.caixa} onChange={(event) => updateForm("caixa", event.target.value)} />
             </div>
+            <div className="field">
+              <label htmlFor="wood-price">Preco</label>
+              <input
+                id="wood-price"
+                type="number"
+                step="0.01"
+                min="0"
+                value={form.price}
+                onChange={(event) => updateForm("price", event.target.value)}
+              />
+            </div>
             <div className="field field--span-2">
               <label htmlFor="wood-description">Descricao</label>
               <textarea id="wood-description" value={form.description} onChange={(event) => updateForm("description", event.target.value)} />
@@ -468,16 +458,7 @@ function WoodProductFormScreen({ mode, id }: { mode: "create" | "edit"; id?: str
                 ) : null}
               </div>
             </div>
-            <div className="field">
-              <label htmlFor="wood-type">Tipo da madeira</label>
-              <input id="wood-type" value={form.woodType} onChange={(event) => updateForm("woodType", event.target.value)} />
-            </div>
-            <div className="field">
-              <label htmlFor="wood-finish">Acabamento</label>
-              <input id="wood-finish" value={form.finish} onChange={(event) => updateForm("finish", event.target.value)} />
-            </div>
             {[
-              ["thicknessMm", "Espessura (mm)"],
               ["widthMm", "Largura (mm)"],
               ["heightMm", "Altura (mm)"],
               ["lengthMm", "Comprimento (mm)"],
@@ -537,12 +518,10 @@ function WoodProductFormScreen({ mode, id }: { mode: "create" | "edit"; id?: str
               {product?.variations.map((variation) => (
                 <article className="wood-variation-card" key={variation.id}>
                   <div>
-                    <strong>{variation.description || "Variacao sem descricao"}</strong>
-                    <p>{[variation.color, variation.size].filter(Boolean).join(" / ") || "Sem cor/tamanho"}</p>
+                    <strong>{variation.color || "Variacao sem cor"}</strong>
                     <div className="toolbar">
                       <span className="badge badge--muted">SKU {variation.sku ?? "-"}</span>
                       <span className="badge badge--muted">EAN {variation.ean ?? "-"}</span>
-                      <span className="badge badge--accent">{formatCurrency(variation.price ?? 0)}</span>
                     </div>
                   </div>
                   {variation.labelImageUrl ? <img src={variation.labelImageUrl} alt="Etiqueta personalizada" /> : null}
@@ -585,20 +564,8 @@ function WoodProductFormScreen({ mode, id }: { mode: "create" | "edit"; id?: str
 
             <form className="form-grid form-grid--single" onSubmit={saveVariation}>
               <div className="field">
-                <label htmlFor="variation-description">Descricao</label>
-                <textarea
-                  id="variation-description"
-                  value={variationForm.description}
-                  onChange={(event) => updateVariationForm("description", event.target.value)}
-                />
-              </div>
-              <div className="field">
                 <label htmlFor="variation-color">Cor</label>
                 <input id="variation-color" value={variationForm.color} onChange={(event) => updateVariationForm("color", event.target.value)} />
-              </div>
-              <div className="field">
-                <label htmlFor="variation-size">Tamanho</label>
-                <input id="variation-size" value={variationForm.size} onChange={(event) => updateVariationForm("size", event.target.value)} />
               </div>
               <div className="field">
                 <label htmlFor="variation-sku">SKU</label>
@@ -607,16 +574,6 @@ function WoodProductFormScreen({ mode, id }: { mode: "create" | "edit"; id?: str
               <div className="field">
                 <label htmlFor="variation-ean">EAN</label>
                 <input id="variation-ean" type="number" value={variationForm.ean} onChange={(event) => updateVariationForm("ean", event.target.value)} />
-              </div>
-              <div className="field">
-                <label htmlFor="variation-price">Preco</label>
-                <input
-                  id="variation-price"
-                  type="number"
-                  step="0.01"
-                  value={variationForm.price}
-                  onChange={(event) => updateVariationForm("price", event.target.value)}
-                />
               </div>
               <div className="field">
                 <label htmlFor="variation-label">Etiqueta</label>

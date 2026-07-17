@@ -176,13 +176,10 @@ export interface WoodProductListDto {
 
 export interface WoodProductVariationDto {
   id: number;
-  description: string | null;
   color: string | null;
   sku: number | null;
   ean: number | null;
   listImgs: string[];
-  size: string | null;
-  price: number | null;
   labelImageUrl: string | null;
   labelImagePublicId: string | null;
   active: boolean;
@@ -196,9 +193,7 @@ export interface WoodProductFullDto {
   name: string;
   description: string | null;
   caixa: string | null;
-  woodType: string | null;
-  finish: string | null;
-  thicknessMm: number | null;
+  price: number | null;
   widthMm: number | null;
   heightMm: number | null;
   lengthMm: number | null;
